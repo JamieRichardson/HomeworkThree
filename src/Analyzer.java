@@ -54,11 +54,11 @@ public class Analyzer {
         }
         Set<Word> uniqueWords = new HashSet<>();
         for (Sentence sentence : sentences) {
+            if (sentence == null) {
+                continue;
+            }
             StringTokenizer wordsInSentence = new StringTokenizer(sentence.getText());
             while (wordsInSentence.hasMoreTokens()) {
-                if (wordsInSentence.nextToken() == null) {
-                    continue;
-                }
                 String checkWord = wordsInSentence.nextToken().toLowerCase();
                 if (!checkWord.matches("[a-z]+")) {
                     continue;
@@ -71,7 +71,6 @@ public class Analyzer {
                 } else {
                     for (Word word : uniqueWords) {
                         if (word.equals(tempWord)) {
-                            word.count++;
                             word.increaseTotal(sentence.getScore());
                             break;
                         }
@@ -110,24 +109,19 @@ public class Analyzer {
         }
         StringTokenizer st = new StringTokenizer(sentence);
         while (st.hasMoreTokens()) {
-            if (st.nextToken() == null) {
-                //totalScore += 0;
-                //numberOfWordsInSentence++;
-                continue;
-            }
             String word = st.nextToken().toLowerCase();
             if (!word.matches("[a-z]+")) {
                 continue;
             }
-            try {
-                wordScores.get(word);
-                numberOfWordsInSentence++;
-                totalScore += wordScores.get(word);
-            } catch (NoSuchElementException e) {
-                numberOfWordsInSentence++;
-            }
+            Double scoreFromMap;
+            scoreFromMap = wordScores.getOrDefault(word, 0.0);
+            totalScore += scoreFromMap;
+            numberOfWordsInSentence++;
         }
         sentenceScore = totalScore / numberOfWordsInSentence;
+        if (Double.isNaN(sentenceScore)) {
+            return 0;
+        }
         return sentenceScore;
     }
 
